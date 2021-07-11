@@ -14,5 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('dashboard.dashboard');
 });
+Route::resource('/home', 'HomeController');
+Route::resource('/obat', 'ObatController');
+Route::resource('/tindakan','TindakanController');
+Route::resource('/wilayah','WilayahController');
+Route::resource('/pasien','PasienController');
+Route::resource('/pegawai','PegawaiController');
+Route::resource('/pemeriksaan','PemeriksaanController');
