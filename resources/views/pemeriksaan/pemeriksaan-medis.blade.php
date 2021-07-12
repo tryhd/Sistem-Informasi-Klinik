@@ -6,7 +6,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1>Pengajuan Pembuatan KK</h1>
+                <h1>Form Permeriksaan</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -179,7 +179,7 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <button type="submit" class="btn btn-primary">Simpan Pengajuan</button>
+            <button type="submit" class="btn btn-primary">Simpan</button>
         </div>
     </div>
     </form>
