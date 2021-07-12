@@ -12,7 +12,7 @@ class Faktur extends Model
         return $this->belongsTo('App\pasien','pasien_id');
     }
     public function resep(){
-        return $this->belongsTo('App\resep','reesep_id');
+        return $this->belongsTo('App\resep','resep_id');
     }
     public function medis(){
         return $this->belongsTo('App\Rk_medis','rkm_id');

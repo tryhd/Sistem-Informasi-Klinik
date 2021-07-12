@@ -37,6 +37,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     public function pegawai(){
-        return $this->brlongsTo('App\pegawai','pegawai_id');
+        return $this->belongsTo('App\pegawai','pegawai_id');
     }
 }

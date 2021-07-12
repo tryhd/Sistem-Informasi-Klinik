@@ -13,7 +13,7 @@ class Resep extends Model
         return $this->belongsTo('App\pasien','pasien_id');
     }
 
-    public function obat(){
+    public function Obat(){
         return $this->belongsTo('App\obat','obat_id');
     }
 

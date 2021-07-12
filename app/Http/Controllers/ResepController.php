@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+Use App\resep;
+Use App\Faktur;
+use App\Pasien;
+use App\Obat;
+use Session;
 class ResepController extends Controller
 {
     /**
@@ -14,6 +18,9 @@ class ResepController extends Controller
     public function index()
     {
         //
+        $resep=Resep::query()->where('status','belum')->get();
+        $faktur=faktur::all();
+        return view('resep.resep-index',compact('faktur','resep'));
     }
 
     /**
@@ -57,6 +64,18 @@ class ResepController extends Controller
     public function edit($id)
     {
         //
+        $resep=Resep::find($id);
+        $pasien=Pasien::find($resep->pasien_id);
+        $pasien->status='selesai';
+        $pasien->update();
+        $obat=Obat::find($resep->obat_id);
+        $obat->stok=$obat->stok-1;
+        $obat->update();
+        $resep->status='selesai';
+        $resep->update();
+        Session::flash('message','Resep obat '. $resep->pasien->nama .' sudah dibayar!');
+        Session::flash('type', 'success');
+        return redirect()->route('resep.index');
     }
 
     /**

@@ -11,6 +11,8 @@ use App\Resep;
 use App\Obat;
 use App\Rk_medis;
 use App\tindakan;
+use App\Faktur;
+use Illuminate\Support\Facades\DB;
 class PemeriksaanController extends Controller
 {
     /**
@@ -23,7 +25,7 @@ class PemeriksaanController extends Controller
         //
         $periksa=Pasien::query()->where('status','obat')->get();
         $pasien=Pasien::query()->where('status','antri')
-        // ->where('layanan_dokter',Auth()->user()->id)
+        ->where('layanan_dokter',Auth()->user()->pegawai_id)
         ->get();
         return view ('pemeriksaan.pemeriksaan-index',compact('pasien','periksa'));
     }
@@ -70,10 +72,10 @@ class PemeriksaanController extends Controller
     public function edit($id)
     {
         //
-        $obat=Obat::query()->where('stok' ,'>=','1')->get();
+        $obats=Obat::query()->where('stok' ,'>=' , '1')->get();
         $tindakan=tindakan::all();
         $pasien=Pasien::find($id);
-        return view ('pemeriksaan.pemeriksaan-medis',compact('pasien','obat','tindakan'));
+        return view ('pemeriksaan.pemeriksaan-medis',compact('pasien','obats','tindakan'));
     }
 
     /**
@@ -95,18 +97,20 @@ class PemeriksaanController extends Controller
             'tb'=>'required',
             'tensi'=>'required',
             'keterangan'=>'required',
-            'obat'=>'required',
+            'robat'=>'required',
+            'ket'=>'required',
         ];
         $message=[
             'diagnosa.required'=>'Diagnosa tidak boleh kosong!',
             'keluhan.required'=>'Keluhan tidak boleh kosong!',
             'tindakan.required'=>'Tindakan tidak boleh kosong!',
-            'alergi_obat.required'=>'Alegi obat tidak boleh kosong!',
+            'alergi_obat.required'=>'Alergi obat tidak boleh kosong!',
             'bb.required'=>'Berat badan tidak boleh kosong',
             'tb.required'=>'Tinggi badan tidak boleh kosong!',
             'tensi.required'=>'Tensi darah tidak boleh kosong!',
             'keterangan.required'=>'Keterangan tidak boleh kosong!',
-            'obat.required'=>'Obat tidak boleh kosong!',
+            'robat.required'=>'Obat tidak boleh kosong!',
+            'ket.required'=>'Keterangan tidak boleh kosong!'
         ];
         $request->validate($rules,$message);
         $pasien=pasien::find($id);
@@ -116,24 +120,46 @@ class PemeriksaanController extends Controller
         $rkm->diagnosa=$request->diagnosa;
         $rkm->keluhan=$request->keluhan;
         $rkm->tindakan_id=$request->input('tindakan');
-        $rkm->alergi_obat=$request->alergi;
+        $rkm->alergi_obat=$request->alergi_obat;
         $rkm->bb=$request->bb;
         $rkm->tb=$request->tb;
         $rkm->tensi=$request->tensi;
         $rkm->keterangan=$request->keterangan;
         $rkm->pasien_id=$pasien->id;
-        $rkm->dokter_id=Auth()->user()->id;
+        $rkm->dokter_id=Auth()->user()->pegawai_id;
         $rkm->save();
         $resep=new Resep;
-        $resep->dokter_id=Auth()->user()->id;
+        $resep->dokter_id=Auth()->user()->pegawai_id;
         $resep->pasien_id=$pasien->id;
-        $resep->obat_id=$request->input('obat');
-        $resep->keterangan=$request->keterangan;
+        $resep->obat_id=$request->input('robat');
+        $resep->keterangan=$request->ket;
         $resep->status='belum';
         $resep->save();
+        $hargao=resep::all();
+        $faktur=new Faktur;
+        $faktur->resep_id=$resep->id;
+        $faktur->rkm_id=$rkm->id;
+        $harga=DB::select('SELECT o.id,r.id,o.harga,o.stok
+        FROM obat o
+        JOIN resep r
+        WHERE r.obat_id=o.id');
+        foreach ($harga as $h){
+            $hargaobat=$h->harga;
+        }
+        $tarif=DB::select('SELECT t.id,rk.tindakan_id,t.tarif
+        FROM tindakan t
+        JOIN rk_medis rk
+        WHERE rk.tindakan_id=t.id');
+        foreach ($tarif as $t){
+            $tarift=$t->tarif;
+        }
+        $faktur->tagihan=$tarift + $hargaobat;
+        $faktur->save();
+        // dd($request->all());
+        // dd($rkm,$faktur,$resep,$pasien,$hargaobat,$tarift);
         Session::flash('message',$pasien->nama .' sudah diperiksa!');
         Session::flash('type', 'success');
-        return redirect()->route('pemeriksaan.pemeriksaan-index');
+        return redirect()->route('pemeriksaan.index');
     }
 
     /**

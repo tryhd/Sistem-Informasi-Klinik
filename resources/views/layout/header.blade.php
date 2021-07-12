@@ -12,13 +12,20 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" data-toggle="dropdown">
-              <span class="hidden-xs">Selamat Datang </span>
+              <span class="hidden-xs">Selamat Datang {{Auth::User()->name}}</span>
               <i class="fas fa-cog"></i>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
-                  
+                @if (Auth::user()->pegawai->photo !=null)
+                <img src="{{ asset('img/pegawai/'.auth()->user()->pegawai->photo)}}" class="img-circle" alt="User Image">
+                @else
+                <img src="/dist/img/avatar5.png" class="img-circle" alt="User Image">
+                @endif
+                <p>
+                    {{Auth::User()->name}}
+                    <small>{{Auth::User()->role}}</small>
                 </p>
               </li>
               <!-- Menu Body -->
